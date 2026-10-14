@@ -302,7 +302,7 @@
       '<div class="enemies">' + enemies + '</div>' +
       '<div class="panel controls">' +
       '<div class="ctl-row"><div class="pips">Actions ' + pips + '</div>' +
-      '<div class="row">' + (c.kind !== 'boss' ? btn('retreat', '🚑 Retreat & Consult', 'small', {}) : '') + btn('endTurn', 'End Turn ⏭', 'primary') + '</div></div>' +
+      '<div class="row">' + (c.kind !== 'boss' ? btn('retreat', S.confirmRetreat ? '⚠ Confirm retreat (−' + G.RETREAT_COST + ' integrity, no rewards)' : '🚑 Retreat & Consult', 'small' + (S.confirmRetreat ? ' danger' : ''), {}) : '') + btn('endTurn', 'End Turn ⏭', 'primary') + '</div></div>' +
       '<div class="parts">' + parts + '</div></div>' +
       '</div>' +
       '<div class="combat-side">' +
@@ -407,7 +407,7 @@
         '<p>Pathogens catalogued: <b>' + Object.keys(cx.orgs).length + ' / ' + Object.keys(ORGS).length + '</b></p>' +
         '<p>Drug–bug pairs tested: <b>' + Object.keys(cx.pairs).length + '</b></p>' +
         '<p>Penetration failures observed: <b>' + Object.keys(cx.sites).length + '</b></p>' +
-        btn('resetCodex', 'Reset codex & record', 'small danger') + '</div>';
+        btn('resetCodex', S.confirmReset ? '⚠ Click again to erase codex & record' : 'Reset codex & record', 'small danger') + '</div>';
     }
     return '<div class="panel codex"><div class="row spread"><h2>📖 Codex</h2>' + btn('closeCodex', '✕ Close', 'small') + '</div>' + tabs + body + '</div>';
   };
@@ -462,7 +462,9 @@
   A.closeCodex = function () { S.screen = S.from || 'title'; if (S.screen === 'codex') S.screen = 'title'; };
   A.codexTab = function (d) { S.codexTab = d.t; };
   A.resetCodex = function () {
-    if (window.confirm('Reset all codex entries and your record?')) G.storage.del('idm_codex');
+    if (!S.confirmReset) { S.confirmReset = true; return; }
+    S.confirmReset = false;
+    G.storage.del('idm_codex');
   };
 
   A.selPart = function (d) {
@@ -510,7 +512,10 @@
   A.fire = function (d) { G.fire(S.run, S.combat, d.part); };
   A.endTurn = function () { G.endTurn(S.run, S.combat); };
   A.retreat = function () {
-    if (window.confirm('Retreat costs ' + G.RETREAT_COST + ' integrity and gives no rewards, but the consult will tell you what would have worked. Retreat?')) G.retreat(S.run, S.combat);
+    // Two-step confirmation inside the page (browser confirm dialogs are not always available)
+    if (!S.confirmRetreat) { S.confirmRetreat = true; return; }
+    S.confirmRetreat = false;
+    G.retreat(S.run, S.combat);
   };
   A.collect = function () {
     var r = S.run, c = S.combat;
@@ -591,6 +596,8 @@
     if (!el || el.disabled || el.classList.contains('disabled')) return;
     var fn = A[el.dataset.act];
     if (!fn) return;
+    if (el.dataset.act !== 'retreat') S.confirmRetreat = false;
+    if (el.dataset.act !== 'resetCodex') S.confirmReset = false;
     fn(el.dataset);
     render();
   });

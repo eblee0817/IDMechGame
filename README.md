@@ -14,6 +14,8 @@ npm start            # python3 -m http.server 8000 → http://localhost:8000
 
 Progress (codex, saved run, last loadout) is stored in `localStorage`.
 
+To build a single self-contained HTML file (handy for sharing or hosting): `node tools/bundle.js` writes `dist/spectrum-mech.html`.
+
 ## Core loop
 
 1. **Hangar.** Pick an antibiotic **class** for each part (Head, Torso, Right Arm, Left Arm, Legs), then a **specific drug** within that class (the sub-part). Each part must use a different class.
