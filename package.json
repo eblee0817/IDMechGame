@@ -1,0 +1,11 @@
+{
+  "name": "spectrum-mech",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A roguelike mech game for learning antibiotic coverage.",
+  "scripts": {
+    "test": "node tests/validate.js",
+    "sim": "node tests/simulate.js 400",
+    "start": "python3 -m http.server 8000"
+  }
+}
